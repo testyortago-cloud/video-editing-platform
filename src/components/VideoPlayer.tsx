@@ -2,8 +2,8 @@
 
 import { useRef, useEffect, useState, useCallback } from 'react';
 
-function isGoogleDriveEmbed(url: string): boolean {
-  return url.includes('drive.google.com');
+function isGoogleDriveEmbed(url: string | undefined | null): boolean {
+  return typeof url === 'string' && url.includes('drive.google.com');
 }
 
 /** Extract Google Drive file ID from various URL formats */
@@ -35,7 +35,7 @@ export interface FrameCapturePayload {
 }
 
 interface VideoPlayerProps {
-  embedUrl: string;
+  embedUrl: string | undefined | null;
   title: string;
   onTimestampCapture?: (timestamp: number) => void;
   onCaptureRequest?: () => void;
@@ -58,7 +58,7 @@ export function VideoPlayer({
   const [showCaptureIndicator, setShowCaptureIndicator] = useState(false);
   
   const isGoogleDrive = isGoogleDriveEmbed(embedUrl);
-  const driveFileId = isGoogleDrive ? extractDriveFileId(embedUrl) : null;
+  const driveFileId = isGoogleDrive && typeof embedUrl === 'string' ? extractDriveFileId(embedUrl) : null;
   
   // Prefer direct/proxy mode for Google Drive so playback works even when Drive is still "processing" the file
   const [useDirectMode, setUseDirectMode] = useState(!!driveFileId);
@@ -240,9 +240,9 @@ export function VideoPlayer({
   }, []);
 
   // Get the video source URL
-  const videoSrc = isGoogleDrive && useDirectMode && driveFileId 
-    ? getDriveDirectUrl(driveFileId) 
-    : embedUrl;
+  const videoSrc = isGoogleDrive && useDirectMode && driveFileId
+    ? getDriveDirectUrl(driveFileId)
+    : (embedUrl ?? undefined);
 
   // 9:16 portrait container for mobile/social format videos
   const containerClass = 'relative w-full aspect-[9/16] max-h-[min(85vh,800px)]';
@@ -298,7 +298,7 @@ export function VideoPlayer({
     <div className={containerClass}>
       <iframe
         ref={iframeRef}
-        src={embedUrl}
+        src={embedUrl ?? undefined}
         title={title}
         className="absolute inset-0 w-full h-full rounded-lg"
         allow="autoplay; encrypted-media"
