@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { StatusBadge, EmptyState, VideoIcon, TableSkeleton, StatCard, FirebaseStorageUsage } from '@/components';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDataCache } from '@/contexts/DataCacheContext';
+import { matchesSearch, safeDateMs, safeFormatDate } from '@/lib/format';
 import type { Submission, SubmissionStatus } from '@/types';
 
 export default function AdminDashboardPage() {
@@ -88,12 +89,12 @@ export default function AdminDashboardPage() {
   }, [statusFilter, getCache, fetchSubmissions]);
 
   const filteredSubmissions = submissions.filter((submission) =>
-    submission.title.toLowerCase().includes(searchQuery.toLowerCase())
+    matchesSearch(submission.title, searchQuery)
   );
 
   // Sort by updated_at (most recent first) for latest submissions
   const sortedSubmissions = [...filteredSubmissions].sort((a, b) => {
-    return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+    return safeDateMs(b.updated_at) - safeDateMs(a.updated_at);
   });
 
   // Get latest 3 submissions for dashboard preview
@@ -228,7 +229,7 @@ export default function AdminDashboardPage() {
                       <StatusBadge status={submission.status} size="sm" />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-black/50">
-                      {new Date(submission.updated_at).toLocaleDateString()}
+                      {safeFormatDate(submission.updated_at)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <Link
@@ -403,10 +404,10 @@ export default function AdminDashboardPage() {
                       <StatusBadge status={submission.status} size="sm" />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-black/50">
-                      {new Date(submission.created_at).toLocaleDateString()}
+                      {safeFormatDate(submission.created_at)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-black/50">
-                      {new Date(submission.updated_at).toLocaleDateString()}
+                      {safeFormatDate(submission.updated_at)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <Link
@@ -449,12 +450,12 @@ export default function AdminDashboardPage() {
                 <div className="flex items-center justify-between">
                   <StatusBadge status={submission.status} size="sm" />
                   <span className="text-xs text-black/40">
-                    {new Date(submission.created_at).toLocaleDateString()}
+                    {safeFormatDate(submission.created_at)}
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between text-xs text-black/50 pt-3 border-t border-black/10">
-                  <span>Updated: {new Date(submission.updated_at).toLocaleDateString()}</span>
+                  <span>Updated: {safeFormatDate(submission.updated_at)}</span>
                   <span className="text-[#061E26] font-semibold inline-flex items-center gap-1">
                     View
                     <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">

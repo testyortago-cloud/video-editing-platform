@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { StatusBadge, StatCard, FirebaseStorageUsage } from '@/components';
 import { useDataCache } from '@/contexts/DataCacheContext';
+import { safeDateMs, safeFormatDate } from '@/lib/format';
 import type { Submission } from '@/types';
 
 export default function ReviewerDashboardPage() {
@@ -71,7 +72,7 @@ export default function ReviewerDashboardPage() {
 
   // Sort by updated_at (most recent first) for latest submissions
   const sortedSubmissions = [...submissions].sort((a, b) => {
-    return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+    return safeDateMs(b.updated_at) - safeDateMs(a.updated_at);
   });
 
   // Get latest 3 submissions for dashboard preview
@@ -220,7 +221,7 @@ export default function ReviewerDashboardPage() {
                 <div className="flex items-center justify-between">
                   <StatusBadge status={submission.status} size="sm" />
                   <span className="text-xs text-black/40">
-                    {new Date(submission.updated_at).toLocaleDateString()}
+                    {safeFormatDate(submission.updated_at)}
                   </span>
                 </div>
 

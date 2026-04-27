@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { StatusBadge, EmptyState, VideoIcon, TableSkeleton } from '@/components';
 import { useDataCache } from '@/contexts/DataCacheContext';
+import { matchesSearch, safeFormatDate } from '@/lib/format';
 import type { Submission, SubmissionStatus } from '@/types';
 
 export default function ReviewPage() {
@@ -83,7 +84,7 @@ export default function ReviewPage() {
   }, [statusFilter, fetchSubmissions, getCache]);
 
   const filteredSubmissions = submissions.filter((submission) =>
-    submission.title.toLowerCase().includes(searchQuery.toLowerCase())
+    matchesSearch(submission.title, searchQuery)
   );
 
   const totalPages = Math.ceil(filteredSubmissions.length / itemsPerPage);
@@ -232,10 +233,10 @@ export default function ReviewPage() {
                         <StatusBadge status={submission.status} size="sm" />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
-                        {new Date(submission.created_at).toLocaleDateString()}
+                        {safeFormatDate(submission.created_at)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
-                        {new Date(submission.updated_at).toLocaleDateString()}
+                        {safeFormatDate(submission.updated_at)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <Link
@@ -277,12 +278,12 @@ export default function ReviewPage() {
                   <div className="flex items-center justify-between">
                     <StatusBadge status={submission.status} size="sm" />
                     <span className="text-xs text-slate-400">
-                      {new Date(submission.created_at).toLocaleDateString()}
+                      {safeFormatDate(submission.created_at)}
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between text-xs text-slate-500 pt-3 border-t border-slate-100">
-                    <span>Updated: {new Date(submission.updated_at).toLocaleDateString()}</span>
+                    <span>Updated: {safeFormatDate(submission.updated_at)}</span>
                     <span className="text-blue-600 font-semibold inline-flex items-center gap-1">
                       Review
                       <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
